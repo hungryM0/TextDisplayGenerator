@@ -11,6 +11,9 @@
     <div class="colorful_text">
         <h1>🛠 文本展示实体生成工具</h1>
     </div>
+    <div class="corner_link">
+        <a href="https://github.com/C20C01/TextDisplayGenerator">Github仓库 ⭐</a>
+    </div>
 </header>
 <div id="container">
     <div id="left_area">
@@ -199,9 +202,12 @@
 
                 <div class="contents">
                     <div class="flex">
-                        <a href="https://github.com/C20C01/TextDisplayGenerator">
-                            <button>介绍 / 说明</button>
-                        </a>
+                        <label for="mc_version">游戏版本
+                            <select id="mc_version">
+                                <option value="1.21.5+">≥ 1.21.5</option>
+                                <option value="1.21.5-">< 1.21.5</option>
+                            </select>
+                        </label>
                     </div>
                     <div class="flex">
                         <button class="big_button" onclick="generate()">生成</button>

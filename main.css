@@ -179,6 +179,19 @@ input[type="color"]::-webkit-color-swatch {
     gap: 8px;
 }
 
+.corner_link {
+    display: flex;
+    align-items: center;
+    margin: 4px;
+}
+
+.corner_link a {
+    transform: rotate(8deg);
+    font-size: 21px;
+    font-weight: bold;
+    color: #EEEEFF;
+}
+
 h2.flex {
     margin: 0;
 }
