@@ -1,6 +1,8 @@
 # 文本展示实体生成工具
 
-一个[网页](https://c20c01.github.io/TextDisplayGenerator/)，可以比较方便地生成召唤文本展示实体的命令。
+比较方便地生成召唤`文本展示实体`的命令。
+
+可以[在线使用](https://c20c01.github.io/TextDisplayGenerator/)，也可以克隆到本地使用。
 
 ## 文本展示实体
 
