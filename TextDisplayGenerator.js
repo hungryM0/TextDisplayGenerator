@@ -193,7 +193,9 @@ function generateNBT () {
 }
 
 function generate () {
-  print(`${commandPrefix} ${generatePos()} {${generateNBT()}}`);
+  const command = `${commandPrefix} ${generatePos()} {${generateNBT()}}`;
+  print(command);
+  saveHistory(command);
   window.scrollTo(0, document.body.scrollHeight);
 }
 
@@ -486,3 +488,97 @@ summonTextCommonColor();
 setYaw(0);
 updateBg();
 updateBgSize(1);
+
+// 历史记录管理====================================================
+function saveHistory(command) {
+  const inputHtml = editor.input.innerHTML;
+  if (!inputHtml.trim()) return;
+  
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = inputHtml;
+  const textContent = tempDiv.textContent || tempDiv.innerText;
+  const previewHtml = textContent.length > 30 ? inputHtml.substring(0, Math.min(inputHtml.length, 200)) : inputHtml;
+  
+  const history = {
+    id: Date.now(),
+    previewHtml: previewHtml,
+    previewText: textContent.substring(0, 30),
+    html: inputHtml,
+    command: command
+  };
+  
+  const historyList = getHistoryList();
+  historyList.unshift(history);
+  localStorage.setItem('textDisplayHistory', JSON.stringify(historyList));
+  loadHistoryList();
+}
+
+function getHistoryList() {
+  const data = localStorage.getItem('textDisplayHistory');
+  return data ? JSON.parse(data) : [];
+}
+
+function loadHistoryList() {
+  const historyList = getHistoryList();
+  const container = document.getElementById('history_list');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  historyList.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'history_item';
+    
+    const preview = document.createElement('div');
+    preview.className = 'history_preview';
+    if (item.previewHtml) {
+      preview.innerHTML = item.previewHtml;
+      const textLen = (item.previewText || '').length;
+      if (textLen >= 30) {
+        const ellipsis = document.createTextNode('...');
+        preview.appendChild(ellipsis);
+      }
+    } else {
+      preview.textContent = (item.preview || item.previewText || '') + '...';
+    }
+    
+    const btnRestore = document.createElement('button');
+    btnRestore.textContent = '恢复';
+    btnRestore.onclick = () => restoreFromHistory(item.id);
+    
+    const btnDelete = document.createElement('button');
+    btnDelete.textContent = '删除';
+    btnDelete.onclick = () => deleteHistory(item.id);
+    
+    div.appendChild(preview);
+    div.appendChild(btnRestore);
+    div.appendChild(btnDelete);
+    container.appendChild(div);
+  });
+}
+
+function restoreFromHistory(id) {
+  const historyList = getHistoryList();
+  const item = historyList.find(h => h.id === id);
+  if (item) {
+    editor.input.innerHTML = item.html;
+    if (item.command) {
+      print(item.command);
+    }
+  }
+}
+
+function deleteHistory(id) {
+  const historyList = getHistoryList();
+  const filtered = historyList.filter(h => h.id !== id);
+  localStorage.setItem('textDisplayHistory', JSON.stringify(filtered));
+  loadHistoryList();
+}
+
+function clearAllHistory() {
+  if (confirm('确定要清空所有历史记录吗？')) {
+    localStorage.removeItem('textDisplayHistory');
+    loadHistoryList();
+  }
+}
+
+window.addEventListener('load', loadHistoryList);

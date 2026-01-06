@@ -352,3 +352,38 @@ a {
     display: flex;
     text-decoration: none;
 }
+
+#history_list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history_item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    border: 2px solid var(--color_3);
+}
+
+.history_preview {
+    flex: 1;
+    font-size: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.history_preview * {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+}
+
+.history_item button {
+    flex: 0 0 auto;
+    min-width: 60px;
+}
