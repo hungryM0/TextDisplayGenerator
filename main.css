@@ -146,12 +146,6 @@ input[type="color"]::-webkit-color-swatch {
     border: 0;
 }
 
-.separator {
-    width: 2px;
-    height: 100%;
-    background-color: var(--color_3);
-}
-
 .tooltip {
     position: relative;
     display: inline-block;
@@ -392,20 +386,15 @@ a {
     flex: 1;
     min-width: 0;
     font-size: 16px;
+    line-height: 1.4;
+    white-space: pre;
     overflow-x: auto;
     overflow-y: hidden;
-    line-height: 1.4;
-    white-space: nowrap;
 }
 
 .history_preview.collapsed {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
+    max-height: calc(1.4em * 3.4);
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
 }
 
 .history_preview * {

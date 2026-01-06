@@ -609,7 +609,7 @@ function loadHistoryList() {
     div.appendChild(btnDelete);
     container.appendChild(div);
     
-    // 检查是否需要展开按钮
+    // 检查是否需要展开按钮（内容超出高度）
     if (preview.scrollHeight > preview.clientHeight) {
       btnExpand.style.display = '';
     }
