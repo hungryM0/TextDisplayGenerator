@@ -490,20 +490,74 @@ updateBg();
 updateBgSize(1);
 
 // 历史记录管理====================================================
+function getFormParams() {
+  return {
+    x: document.getElementById("x").value,
+    y: document.getElementById("y").value,
+    z: document.getElementById("z").value,
+    yaw: document.getElementById("yaw").value,
+    pitch: document.getElementById("pitch").value,
+    width: document.getElementById("width").value,
+    height: document.getElementById("height").value,
+    view_range: document.getElementById("view_range").value,
+    alignment: document.getElementById("alignment").value,
+    billboard: document.getElementById("billboard").value,
+    scale: document.getElementById("scale").value,
+    line_width: document.getElementById("line_width").value,
+    light: document.getElementById("light").value,
+    tag: document.getElementById("tag").value,
+    see_through: document.getElementById("see_through").checked,
+    shadow: document.getElementById("shadow").checked,
+    bg_color: document.getElementById("bg_color").value,
+    text_opacity: document.getElementById("text_opacity").value,
+    mc_version: document.getElementById("mc_version").value
+  };
+}
+
+function setFormParams(params) {
+  if (!params) return;
+  document.getElementById("x").value = params.x ?? 0;
+  document.getElementById("y").value = params.y ?? 0.5;
+  document.getElementById("z").value = params.z ?? 0;
+  document.getElementById("yaw").value = params.yaw ?? 0;
+  document.getElementById("pitch").value = params.pitch ?? 0;
+  document.getElementById("width").value = params.width ?? 1;
+  document.getElementById("height").value = params.height ?? 1;
+  document.getElementById("view_range").value = params.view_range ?? 0.5;
+  document.getElementById("alignment").value = params.alignment ?? "left";
+  document.getElementById("billboard").value = params.billboard ?? "fixed";
+  document.getElementById("scale").value = params.scale ?? 1;
+  document.getElementById("line_width").value = params.line_width ?? 200;
+  document.getElementById("light").value = params.light ?? 15;
+  document.getElementById("tag").value = params.tag ?? "";
+  document.getElementById("see_through").checked = params.see_through ?? false;
+  document.getElementById("shadow").checked = params.shadow ?? false;
+  document.getElementById("bg_color").value = params.bg_color ?? "#40000000";
+  document.getElementById("text_opacity").value = params.text_opacity ?? 255;
+  document.getElementById("mc_version").value = params.mc_version ?? "1.21.5+";
+  // 更新相关UI
+  bgChanged();
+  rotationChanged();
+  updateBgSize(1 / parseFloat(params.scale ?? 1));
+  editor.setStyle('textAlign', params.alignment ?? "left");
+  editor.setTextOpacity(params.text_opacity ?? 255);
+}
+
 function saveHistory(command) {
   const inputHtml = editor.input.innerHTML;
   if (!inputHtml.trim()) return;
   
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = inputHtml;
-  const textContent = tempDiv.textContent || tempDiv.innerText;
-  const previewHtml = textContent.length > 30 ? inputHtml.substring(0, Math.min(inputHtml.length, 200)) : inputHtml;
+  document.body.appendChild(tempDiv);
+  const textContent = tempDiv.innerText;
+  document.body.removeChild(tempDiv);
   
   const history = {
     id: Date.now(),
-    previewHtml: previewHtml,
-    previewText: textContent.substring(0, 30),
+    previewText: textContent,
     html: inputHtml,
+    params: getFormParams(),
     command: command
   };
   
@@ -529,17 +583,17 @@ function loadHistoryList() {
     div.className = 'history_item';
     
     const preview = document.createElement('div');
-    preview.className = 'history_preview';
-    if (item.previewHtml) {
-      preview.innerHTML = item.previewHtml;
-      const textLen = (item.previewText || '').length;
-      if (textLen >= 30) {
-        const ellipsis = document.createTextNode('...');
-        preview.appendChild(ellipsis);
-      }
-    } else {
-      preview.textContent = (item.preview || item.previewText || '') + '...';
-    }
+    preview.className = 'history_preview collapsed';
+    preview.textContent = item.previewText || '';
+    
+    const btnExpand = document.createElement('button');
+    btnExpand.className = 'expand_btn';
+    btnExpand.textContent = '展开';
+    btnExpand.style.display = 'none';
+    btnExpand.onclick = () => {
+      const isCollapsed = preview.classList.toggle('collapsed');
+      btnExpand.textContent = isCollapsed ? '展开' : '收起';
+    };
     
     const btnRestore = document.createElement('button');
     btnRestore.textContent = '恢复';
@@ -550,9 +604,15 @@ function loadHistoryList() {
     btnDelete.onclick = () => deleteHistory(item.id);
     
     div.appendChild(preview);
+    div.appendChild(btnExpand);
     div.appendChild(btnRestore);
     div.appendChild(btnDelete);
     container.appendChild(div);
+    
+    // 检查是否需要展开按钮
+    if (preview.scrollHeight > preview.clientHeight) {
+      btnExpand.style.display = '';
+    }
   });
 }
 
@@ -560,10 +620,17 @@ function restoreFromHistory(id) {
   const historyList = getHistoryList();
   const item = historyList.find(h => h.id === id);
   if (item) {
-    editor.input.innerHTML = item.html;
+    // 恢复左侧参数
+    setFormParams(item.params);
+    // 使用 execCommand 支持撤销
+    editor.input.focus();
+    document.execCommand('selectAll', false, null);
+    document.execCommand('insertHTML', false, item.html);
+    // 使用保存的命令
     if (item.command) {
       print(item.command);
     }
+    window.scrollTo(0, document.body.scrollHeight);
   }
 }
 
