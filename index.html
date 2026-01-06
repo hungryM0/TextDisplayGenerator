@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🛠 文本展示实体生成工具</title>
     <link rel="icon" href="img/favicon.png" type="image/x-icon">
     <link type="text/css" rel="stylesheet" href="main.css">
@@ -17,7 +18,7 @@
 </header>
 <div id="container">
     <div id="left_area">
-        <div style="position:sticky; top: 8px">
+        <div class="sticky-left">
             <div class="box_area">
                 <div class="header">
                     <h2>👀 <span class="tooltip">剔除条件<span
@@ -84,7 +85,7 @@
                                    value="0" step="15" min="-90" max="90">
                         </label>
                     </div>
-                    <b class="tooltip" style="margin:4px 0">快速设置
+                    <b class="tooltip quick-setting-label">快速设置
                         <span class="tooltip_text">朝向设置：当偏航没有对齐，只调整偏航；当偏航已经对齐，将俯仰归零。<br>贴墙：后移实体（不影响无关方向上的坐标）使其背部贴墙（默认使用命令方块生成实体），并添加一定的偏移以避免Z-fighting。（只在偏航为90的整数倍且俯仰为0时可用）<br>重置：恢复初始参数。</span>
                     </b>
                     <div class="flex">
@@ -175,7 +176,7 @@
                         <label>
                             <span class="tooltip">背景<span class="tooltip_text">可用使用取色器和数字输入框分别设置颜色和透明度进而设置背景颜色的ARGB值。也可通过文本输入栏直接设置背景颜色的ARGB值。</span></span>
                             <label id="bg_input_area">
-                                <input type="color" id="bg_color_picker" oninput="updateBg()">
+                                <input type="color" id="bg_color_picker" title="背景颜色" oninput="updateBg()">
                                 <input type="number" id="bg_alpha" value="64" min="0" max="255" step="1"
                                        oninput="updateBg()">
                             </label>
@@ -219,13 +220,13 @@
     </div>
     <div id="right_area">
         <div class="box_area">
-            <div class="header" style="position:sticky; top: -16px">
+            <div class="header sticky-header">
                 <h2>📜 <span class="tooltip">文本<span class="tooltip_text">效果仅供参考，最终效果请以游戏内为准。<br>一般情况下，编辑区的行宽大于默认行宽。<br>在使用其他地方产生的富文本时可能无法正常编辑。<br>文本不是关于实体的中心对称的😫（偏左0.125）。</span></span>
                 </h2>
                 <div class="flex">
                     <div id="text_color_area">
                         <label for="text_color_picker">
-                            <input type="color" id="text_color_picker">
+                            <input type="color" id="text_color_picker" title="文本颜色">
                         </label>
                         <template id="text_common_color"></template>
                     </div>
@@ -266,7 +267,7 @@
 
             <div class="contents">
                 <label for="text_output">
-                    <textarea id="text_output"></textarea>
+                    <textarea id="text_output" title="输出命令"></textarea>
                 </label>
             </div>
 

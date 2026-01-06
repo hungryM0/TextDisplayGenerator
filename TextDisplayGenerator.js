@@ -584,15 +584,15 @@ function loadHistoryList() {
     
     const preview = document.createElement('div');
     preview.className = 'history_preview collapsed';
-    preview.textContent = item.previewText || '';
+    preview.innerHTML = item.html || '';
     
     const btnExpand = document.createElement('button');
     btnExpand.className = 'expand_btn';
-    btnExpand.textContent = '展开';
+    btnExpand.textContent = '展开全部';
     btnExpand.style.display = 'none';
     btnExpand.onclick = () => {
       const isCollapsed = preview.classList.toggle('collapsed');
-      btnExpand.textContent = isCollapsed ? '展开' : '收起';
+      btnExpand.textContent = isCollapsed ? '展开全部' : '收起';
     };
     
     const btnRestore = document.createElement('button');
