@@ -193,7 +193,9 @@ function generateNBT () {
 }
 
 function generate () {
-  print(`${commandPrefix} ${generatePos()} {${generateNBT()}}`);
+  const command = `${commandPrefix} ${generatePos()} {${generateNBT()}}`;
+  print(command);
+  saveHistory(command);
   window.scrollTo(0, document.body.scrollHeight);
 }
 
@@ -486,3 +488,164 @@ summonTextCommonColor();
 setYaw(0);
 updateBg();
 updateBgSize(1);
+
+// 历史记录管理====================================================
+function getFormParams() {
+  return {
+    x: document.getElementById("x").value,
+    y: document.getElementById("y").value,
+    z: document.getElementById("z").value,
+    yaw: document.getElementById("yaw").value,
+    pitch: document.getElementById("pitch").value,
+    width: document.getElementById("width").value,
+    height: document.getElementById("height").value,
+    view_range: document.getElementById("view_range").value,
+    alignment: document.getElementById("alignment").value,
+    billboard: document.getElementById("billboard").value,
+    scale: document.getElementById("scale").value,
+    line_width: document.getElementById("line_width").value,
+    light: document.getElementById("light").value,
+    tag: document.getElementById("tag").value,
+    see_through: document.getElementById("see_through").checked,
+    shadow: document.getElementById("shadow").checked,
+    bg_color: document.getElementById("bg_color").value,
+    text_opacity: document.getElementById("text_opacity").value,
+    mc_version: document.getElementById("mc_version").value
+  };
+}
+
+function setFormParams(params) {
+  if (!params) return;
+  document.getElementById("x").value = params.x ?? 0;
+  document.getElementById("y").value = params.y ?? 0.5;
+  document.getElementById("z").value = params.z ?? 0;
+  document.getElementById("yaw").value = params.yaw ?? 0;
+  document.getElementById("pitch").value = params.pitch ?? 0;
+  document.getElementById("width").value = params.width ?? 1;
+  document.getElementById("height").value = params.height ?? 1;
+  document.getElementById("view_range").value = params.view_range ?? 0.5;
+  document.getElementById("alignment").value = params.alignment ?? "left";
+  document.getElementById("billboard").value = params.billboard ?? "fixed";
+  document.getElementById("scale").value = params.scale ?? 1;
+  document.getElementById("line_width").value = params.line_width ?? 200;
+  document.getElementById("light").value = params.light ?? 15;
+  document.getElementById("tag").value = params.tag ?? "";
+  document.getElementById("see_through").checked = params.see_through ?? false;
+  document.getElementById("shadow").checked = params.shadow ?? false;
+  document.getElementById("bg_color").value = params.bg_color ?? "#40000000";
+  document.getElementById("text_opacity").value = params.text_opacity ?? 255;
+  document.getElementById("mc_version").value = params.mc_version ?? "1.21.5+";
+  // 更新相关UI
+  bgChanged();
+  rotationChanged();
+  updateBgSize(1 / parseFloat(params.scale ?? 1));
+  editor.setStyle('textAlign', params.alignment ?? "left");
+  editor.setTextOpacity(params.text_opacity ?? 255);
+}
+
+function saveHistory(command) {
+  const inputHtml = editor.input.innerHTML;
+  if (!inputHtml.trim()) return;
+  
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = inputHtml;
+  document.body.appendChild(tempDiv);
+  const textContent = tempDiv.innerText;
+  document.body.removeChild(tempDiv);
+  
+  const history = {
+    id: Date.now(),
+    previewText: textContent,
+    html: inputHtml,
+    params: getFormParams(),
+    command: command
+  };
+  
+  const historyList = getHistoryList();
+  historyList.unshift(history);
+  localStorage.setItem('textDisplayHistory', JSON.stringify(historyList));
+  loadHistoryList();
+}
+
+function getHistoryList() {
+  const data = localStorage.getItem('textDisplayHistory');
+  return data ? JSON.parse(data) : [];
+}
+
+function loadHistoryList() {
+  const historyList = getHistoryList();
+  const container = document.getElementById('history_list');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  historyList.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'history_item';
+    
+    const preview = document.createElement('div');
+    preview.className = 'history_preview collapsed';
+    preview.innerHTML = item.html || '';
+    
+    const btnExpand = document.createElement('button');
+    btnExpand.className = 'expand_btn';
+    btnExpand.textContent = '展开全部';
+    btnExpand.style.display = 'none';
+    btnExpand.onclick = () => {
+      const isCollapsed = preview.classList.toggle('collapsed');
+      btnExpand.textContent = isCollapsed ? '展开全部' : '收起';
+    };
+    
+    const btnRestore = document.createElement('button');
+    btnRestore.textContent = '恢复';
+    btnRestore.onclick = () => restoreFromHistory(item.id);
+    
+    const btnDelete = document.createElement('button');
+    btnDelete.textContent = '删除';
+    btnDelete.onclick = () => deleteHistory(item.id);
+    
+    div.appendChild(preview);
+    div.appendChild(btnExpand);
+    div.appendChild(btnRestore);
+    div.appendChild(btnDelete);
+    container.appendChild(div);
+    
+    // 检查是否需要展开按钮（内容超出高度）
+    if (preview.scrollHeight > preview.clientHeight) {
+      btnExpand.style.display = '';
+    }
+  });
+}
+
+function restoreFromHistory(id) {
+  const historyList = getHistoryList();
+  const item = historyList.find(h => h.id === id);
+  if (item) {
+    // 恢复左侧参数
+    setFormParams(item.params);
+    // 使用 execCommand 支持撤销
+    editor.input.focus();
+    document.execCommand('selectAll', false, null);
+    document.execCommand('insertHTML', false, item.html);
+    // 使用保存的命令
+    if (item.command) {
+      print(item.command);
+    }
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+}
+
+function deleteHistory(id) {
+  const historyList = getHistoryList();
+  const filtered = historyList.filter(h => h.id !== id);
+  localStorage.setItem('textDisplayHistory', JSON.stringify(filtered));
+  loadHistoryList();
+}
+
+function clearAllHistory() {
+  if (confirm('确定要清空所有历史记录吗？')) {
+    localStorage.removeItem('textDisplayHistory');
+    loadHistoryList();
+  }
+}
+
+window.addEventListener('load', loadHistoryList);

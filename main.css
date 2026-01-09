@@ -26,8 +26,25 @@ header {
     background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet, red);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-background-size: 200% 100%;
+    background-size: 200% 100%;
     -webkit-animation: background-move 8s infinite linear;
+    animation: background-move 8s infinite linear;
+}
+
+.sticky-left {
+    position: sticky;
+    top: 8px;
+}
+
+.quick-setting-label {
+    margin: 4px 0;
+}
+
+.sticky-header {
+    position: sticky;
+    top: -16px;
 }
 
 @keyframes background-move {
@@ -51,6 +68,8 @@ header {
 
 #right_area {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 h2 {
@@ -125,12 +144,6 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 
 input[type="color"]::-webkit-color-swatch {
     border: 0;
-}
-
-.separator {
-    width: 2px;
-    height: 100%;
-    background-color: var(--color_3);
 }
 
 .tooltip {
@@ -351,4 +364,52 @@ button:enabled:active {
 a {
     display: flex;
     text-decoration: none;
+}
+
+#history_list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history_item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    border: 2px solid var(--color_3);
+}
+
+.history_preview {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.4;
+    white-space: pre;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.history_preview.collapsed {
+    max-height: calc(1.4em * 3.4);
+    overflow: hidden;
+}
+
+.history_preview * {
+    font-size: 16px !important;
+    line-height: 1.4 !important;
+}
+
+.expand_btn {
+    flex: 0 0 auto;
+    min-width: 50px;
+    font-size: 14px;
+    padding: 2px 6px;
+}
+
+.history_item button {
+    flex: 0 0 auto;
+    min-width: 60px;
 }
